@@ -1,4 +1,8 @@
+import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useSetAtom } from "jotai";
+import { currentUserAtom } from "./modules/auth/current-user.state";
+import { authRepository } from "./modules/auth/auto.repository";
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Layout from "./Layout";
@@ -10,6 +14,26 @@ import EditProfile from "./pages/EditProfile";
 import "./App.css";
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const setCurrentUser = useSetAtom(currentUserAtom);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const user = await authRepository.getCurrentUser();
+      setCurrentUser(user);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) return <div />;
+
   return (
     <BrowserRouter>
       <Routes>
