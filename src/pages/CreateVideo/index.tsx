@@ -1,8 +1,11 @@
-import './CreateVideo.css';
-import VideoFileUpload from './VideoFileUpload';
-import ThumbnailUpload from './ThumbnailUpload';
+import { useState } from "react";
+import VideoFileUpload from "./VideoFileUpload";
+import ThumbnailUpload from "./ThumbnailUpload";
+import "./CreateVideo.css";
 
 function CreateVideo() {
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+
   return (
     <main>
       <div className="upload-container">
@@ -13,7 +16,10 @@ function CreateVideo() {
           </p>
         </div>
         <div className="upload-form">
-          <VideoFileUpload />
+          <VideoFileUpload
+            selectedFile={selectedVideo}
+            onFileSelect={setSelectedVideo}
+          />
           <ThumbnailUpload />
           <div className="upload-section">
             <h2 className="section-title">
