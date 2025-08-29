@@ -5,6 +5,7 @@ import "./CreateVideo.css";
 
 function CreateVideo() {
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
 
   return (
     <main>
@@ -20,7 +21,10 @@ function CreateVideo() {
             selectedFile={selectedVideo}
             onFileSelect={setSelectedVideo}
           />
-          <ThumbnailUpload />
+          <ThumbnailUpload
+            selectedFile={selectedThumbnail}
+            onFileSelect={setSelectedThumbnail}
+          />
           <div className="upload-section">
             <h2 className="section-title">
               タイトル <span className="required">*</span>
