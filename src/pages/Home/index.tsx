@@ -1,16 +1,37 @@
-import VideoCard from './VideoCard';
-import './Home.css';
+import { useEffect, useState } from "react";
+import { Video } from "../../modules/videos/video.entity";
+import { videoRepository } from "../../modules/videos/video.repository";
+import VideoCard from "./VideoCard";
+import "./Home.css";
 
 function Home() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  const fetchVideos = async () => {
+    try {
+      setIsLoading(true);
+      const { videos } = await videoRepository.find();
+      setVideos(videos);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <div>
       <div className="video-grid">
-        <VideoCard />
-        <VideoCard />
-        <VideoCard />
-        <VideoCard />
-        <VideoCard />
-        <VideoCard />
+        {videos.map((video) => (
+          <VideoCard video={video} />
+        ))}
       </div>
       <div className="pagination">
         <button className="pagination-btn prev-btn">
