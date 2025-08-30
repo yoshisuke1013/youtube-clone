@@ -21,10 +21,11 @@ export const videoRepository = {
     return new Video(result.data);
   },
   async find(
+    keyword: string | null,
     paginationParams: { page: number; limit: number } = { page: 1, limit: 9 }
   ): Promise<{ videos: Video[]; pagination: Pagination }> {
     const result = await api.get("/videos", {
-      params: { ...paginationParams },
+      params: { keyword, ...paginationParams },
     });
     return {
       videos: result.data.videos.map((video: Video) => new Video(video)),

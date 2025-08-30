@@ -9,19 +9,20 @@ function Home() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [queryParams, setQueryParams] = useSearchParams();
+  const keyword = queryParams.get("keyword");
   const page = parseInt(queryParams.get("page") || "1");
   const [totalPages, setTotalPages] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     fetchVideos();
-  }, [page]);
+  }, [keyword, page]);
 
   const fetchVideos = async () => {
     try {
       setIsLoading(true);
-      const { videos, pagination } = await videoRepository.find({
+      const { videos, pagination } = await videoRepository.find(keyword, {
         page,
-        limit: 1,
+        limit: 9,
       });
       setVideos(videos);
       setTotalPages(pagination.totalPages);
@@ -47,6 +48,7 @@ function Home() {
           disabled={page === 1}
           onClick={() => {
             setQueryParams({
+              keyword: keyword ?? "",
               page: String(page - 1),
             });
           }}
@@ -61,6 +63,7 @@ function Home() {
           disabled={page === totalPages}
           onClick={() => {
             setQueryParams({
+              keyword: keyword ?? "",
               page: String(page + 1),
             });
           }}
