@@ -52,6 +52,24 @@ function MyVideos() {
     }
   };
 
+  const deleteVideo = async (id: string) => {
+    const confirmMessage =
+      "この動画を削除してもよろしいでしょうか？この操作は取り消せません。";
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      setIsLoading(true);
+      await videoRepository.delete(id);
+      setVideos((prevVideos) => prevVideos.filter((video) => video.id !== id));
+      showMessage("動画を削除しました", "success");
+    } catch (error) {
+      console.error(error);
+      showMessage("動画の削除に失敗しました", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -140,7 +158,15 @@ function MyVideos() {
                   </div>
                 </td>
                 <td className="actions-cell">
-                  <button className="delete-button">削除</button>
+                  <button
+                    className="delete-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteVideo(video.id);
+                    }}
+                  >
+                    削除
+                  </button>
                 </td>
               </tr>
             ))}
