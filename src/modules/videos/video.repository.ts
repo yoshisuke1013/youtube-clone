@@ -32,4 +32,8 @@ export const videoRepository = {
       pagination: result.data.pagination,
     };
   },
+  async findMine(): Promise<Video[]> {
+    const result = await api.get("/videos/mine");
+    return result.data.map((video: Video) => new Video(video));
+  },
 };
