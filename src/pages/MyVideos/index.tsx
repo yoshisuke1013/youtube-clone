@@ -4,6 +4,7 @@ import { useAtomValue } from "jotai";
 import { currentUserAtom } from "../../modules/auth/current-user.state";
 import { Video } from "../../modules/videos/video.entity";
 import { videoRepository } from "../../modules/videos/video.repository";
+import { useFlashMessage } from "../../modules/flash-message/flash-message.state";
 import "./MyVideos.css";
 
 function MyVideos() {
@@ -11,6 +12,7 @@ function MyVideos() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const currentUser = useAtomValue(currentUserAtom);
+  const { showMessage } = useFlashMessage();
 
   useEffect(() => {
     fetchMine();
@@ -23,6 +25,28 @@ function MyVideos() {
       setVideos(videos);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateIsPublic = async (id: string, isPublic: boolean) => {
+    try {
+      setIsLoading(true);
+      await videoRepository.updateIsPublic(id, isPublic);
+      setVideos((prevVideos) =>
+        prevVideos.map((video) => {
+          if (id === video.id) {
+            video.isPublic = isPublic;
+            return new Video(video);
+          }
+          return video;
+        })
+      );
+      showMessage("公開設定を変更しました", "success");
+    } catch (error) {
+      console.error(error);
+      showMessage("公開設定の変更に失敗しました", "error");
     } finally {
       setIsLoading(false);
     }
@@ -95,7 +119,14 @@ function MyVideos() {
                         </svg>
                       )}
                     </div>
-                    <select className="visibility-select">
+                    <select
+                      className="visibility-select"
+                      value={video.isPublic ? "公開" : "非公開"}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) =>
+                        updateIsPublic(video.id, e.target.value === "公開")
+                      }
+                    >
                       <option value="公開">公開</option>
                       <option value="非公開">非公開</option>
                     </select>
