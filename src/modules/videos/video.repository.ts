@@ -44,4 +44,8 @@ export const videoRepository = {
     await api.delete(`/videos/${id}`);
     return true;
   },
+  async findOne(id: string): Promise<Video> {
+    const result = await api.get(`/videos/${id}`);
+    return new Video(result.data);
+  },
 };
