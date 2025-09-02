@@ -1,69 +1,129 @@
-# React + TypeScript + Vite
+### YouTube Clone (React + TypeScript + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+モダンフロントエンドスタックで構築したシンプルな YouTube クローンです。動画一覧、詳細、アップロード、ユーザー認証、プロフィール編集などの基本機能を備えています。
 
-Currently, two official plugins are available:
+- **フレームワーク**: React 19 + TypeScript + Vite 7
+- **状態管理**: Jotai
+- **ルーティング**: React Router DOM 7
+- **HTTP クライアント**: Axios（認証ヘッダの自動付与）
+- **Lint/型**: ESLint 9 / TypeScript 5
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 必要条件
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js（18 以上を推奨）
+- npm もしくは pnpm / yarn
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## セットアップ
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+1. 依存関係のインストール
+   ```bash
+   npm install
+   ```
+2. 環境変数の設定（`.env`）
+   ```bash
+   # API のベース URL（必須）
+   VITE_API_URL=https://api.example.com
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 実行方法
+
+- 開発サーバー起動
+
+  ```bash
+  npm run dev
+  ```
+
+  デフォルトで `http://localhost:5173` が立ち上がります。
+
+- ビルド
+
+  ```bash
+  npm run build
+  ```
+
+- プレビュー（ビルド成果物の確認）
+
+  ```bash
+  npm run preview
+  ```
+
+- Lint
+  ```bash
+  npm run lint
+  ```
+
+## 環境変数
+
+- **VITE_API_URL**: API のベース URL。`src/lib/api/index.ts` で `axios.create({ baseURL })` に利用します。
+
+## 認証について
+
+`src/lib/api/interceptors/request.ts` のリクエストインターセプタで、`localStorage` の `token` を参照し、存在する場合は `Authorization: Bearer <token>` を自動付与します。
+
+```12:20:src/lib/api/index.ts
+import axios from "axios";
+import { addAuthorizationHeader } from "./interceptors/request";
+
+const baseURL = import.meta.env.VITE_API_URL;
+const api = axios.create({ baseURL });
+api.defaults.headers.common["Content-Type"] = "application/json";
+api.interceptors.request.use(addAuthorizationHeader);
+
+export default api;
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 主な画面/機能
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- ホーム（動画一覧）: `src/pages/Home`
+- 動画詳細: `src/pages/VideoDetail`
+- 動画アップロード: `src/pages/CreateVideo`
+- マイ動画一覧: `src/pages/MyVideos`
+- サインイン/サインアップ: `src/pages/Signin`, `src/pages/Signup`
+- プロフィール編集: `src/pages/EditProfile`
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## ディレクトリ構成（抜粋）
+
+```text
+src/
+  components/
+    Header/
+    Sidebar/
+    FlashMessage/
+  lib/
+    api/
+      index.ts               # Axios インスタンスと共通設定
+      interceptors/
+        request.ts           # Authorization ヘッダ自動付与
+  modules/
+    auth/                    # 認証関連の状態/リポジトリ
+    account/
+    users/
+    videos/
+  pages/
+    Home/
+    VideoDetail/
+    CreateVideo/
+    MyVideos/
+    Signin/
+    Signup/
+    EditProfile/
 ```
+
+## スクリプト
+
+- **dev**: Vite 開発サーバーを起動
+- **build**: TypeScript ビルド + Vite ビルド
+- **preview**: ビルド成果物をローカルで確認
+- **lint**: ESLint を実行
+
+## 開発メモ
+
+- API と通信する際は `api`（`src/lib/api/index.ts`）を利用してください。
+- 認証トークンは `localStorage.setItem('token', '<JWT>')` で保存すると自動的にヘッダに付与されます。
+- 新規ページや機能の追加時は、`pages/` と `modules/` の分離方針を踏襲してください。
+
+## ライセンス
+
+本リポジトリのライセンスは未指定です。必要に応じて追記してください。
